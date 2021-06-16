@@ -43,6 +43,7 @@ function Home() {
 	const houses = useSelector((state) => state.houses.houses);
 	const housesStatus = useSelector((state) => state.houses.status);
 	const housesToShow = useSelector((state) => state.houses.housesToShow);
+	const [viewMarker, setViewMarker] = React.useState(false);
 
 	useEffect(() => {
 		dispatch(getHouses());
@@ -54,6 +55,14 @@ function Home() {
 
 	const locateInMap = (lat, long) => {
 		dispatch(setSelectedLocation([lat, long]));
+	};
+
+	const handleFindLocation = () => {
+		houses.forEach((house) => {
+			// Compare latitudes and longitudes that match
+			//dispatch(setSelectedLocation([house.lat, house.long]));
+		});
+		setViewMarker(true);
 	};
 
 	return (
@@ -127,10 +136,19 @@ function Home() {
 							</div>
 						) : (
 							<>
-								<button style={{position: 'absolute', zIndex: '2', left: '60px'}}>
+								<button
+									style={{
+										position: 'absolute',
+										zIndex: '3',
+										left: '53%',
+										backgroundColor: 'blue',
+									}}
+									onClick={handleFindLocation}
+								>
 									{' '}
 									Busca por ésta zona
 								</button>
+
 								<MapContainer
 									center={selectedLocation}
 									zoom={13}
@@ -142,11 +160,27 @@ function Home() {
 										url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 									/>
 
-									<Marker icon={leafletIcon} position={selectedLocation} />
+									{houses.slice(0, housesToShow).map((house) => (
+										<>
+											<Marker
+												icon={leafletIcon}
+												position={selectedLocation}
+											/>
+											{viewMarker ? (
+												<Marker
+													icon={leafletIcon}
+													position={[house.lat, house.long]}
+												/>
+											) : (
+												<></>
+											)}
+										</>
+									))}
 
 									<MapConsumer>
 										{(map) => {
 											map.setView(selectedLocation);
+
 											return null;
 										}}
 									</MapConsumer>
